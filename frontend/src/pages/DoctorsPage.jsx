@@ -11,16 +11,15 @@ function DoctorsPage() {
         if (!response.ok) {
           throw new Error("Failed to fetch doctors");
         }
-
         return response.json();
       })
       .then((data) => {
         setDoctors(data);
+        setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
-      })
-      .finally(() => {
+        console.error(err);
+        setError("Unable to load doctors");
         setLoading(false);
       });
   }, []);
@@ -30,25 +29,46 @@ function DoctorsPage() {
   }
 
   if (error) {
-    return <h2>Error: {error}</h2>;
+    return <h2>{error}</h2>;
   }
 
   return (
-    <div>
+    <main className="doctors-page">
       <h1>Doctors</h1>
 
-      {doctors.map((doctor) => (
-        <div key={doctor.id}>
-          <h2>{doctor.name}</h2>
-          <p>Email: {doctor.email}</p>
-          <p>Specialisation: {doctor.specialisation}</p>
-          <p>
-            Availability:{" "}
-            {doctor.available ? "Available" : "Not Available"}
-          </p>
+      {doctors.length === 0 ? (
+        <p className="empty">No doctors found in the database.</p>
+      ) : (
+        <div className="doctors-list">
+          {doctors.map((doctor) => (
+            <div
+              className="doctor-card"
+              key={doctor._id || doctor.id}
+            >
+              <h2>{doctor.name}</h2>
+
+              <p>
+                <strong>Email:</strong> {doctor.email}
+              </p>
+
+              <p>
+                <strong>Specialisation:</strong>{" "}
+                {doctor.specialisation}
+              </p>
+
+              <p
+                className={
+                  doctor.available ? "available" : "unavailable"
+                }
+              >
+                Status:{" "}
+                {doctor.available ? "Available" : "Not Available"}
+              </p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      )}
+    </main>
   );
 }
 
